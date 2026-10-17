@@ -48,7 +48,7 @@ async function handle(request: Request) {
         accept: request.headers.get("accept") ?? "*/*",
         "accept-language": request.headers.get("accept-language") ?? "en",
       },
-      body: request.method === "POST" ? await request.arrayBuffer() : undefined,
+      body: request.method === "POST" ? await request.arrayBuffer() : null,
       redirect: "follow",
     });
   } catch (e) {
