@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { publicTarget, rewriteHtml, rewriteCss } from "@/lib/proxy-rewrite";
+import { PROXY_PATH, decodeProxyTarget, publicTarget, rewriteHtml, rewriteCss } from "@/lib/proxy-rewrite";
 
 async function handle(request: Request) {
   const incoming = new URL(request.url);
@@ -7,8 +7,7 @@ async function handle(request: Request) {
   if (!target) return new Response("Missing url", { status: 400 });
   let url: URL;
   try {
-    if (target.length > 8192) throw new Error("URL too long");
-    url = publicTarget(target);
+    url = publicTarget(decodeProxyTarget(target));
     incoming.searchParams.forEach((value, key) => { if (key !== "url") url.searchParams.append(key, value); });
   } catch {
     return new Response("Invalid url", { status: 400 });
@@ -46,7 +45,7 @@ async function handle(request: Request) {
   headers.set("cache-control", "no-store");
   headers.set("referrer-policy", "no-referrer");
   headers.set("x-content-type-options", "nosniff");
-  headers.set("content-security-policy", `sandbox allow-forms allow-popups; default-src 'none'; img-src ${incoming.origin}/api/public/proxy data:; style-src ${incoming.origin}/api/public/proxy 'unsafe-inline'; font-src ${incoming.origin}/api/public/proxy data:; media-src ${incoming.origin}/api/public/proxy; form-action ${incoming.origin}/api/public/proxy; script-src 'none'; connect-src 'none'; frame-src 'none'; base-uri 'none'`);
+  headers.set("content-security-policy", `sandbox allow-forms allow-popups; default-src 'none'; img-src ${incoming.origin}${PROXY_PATH} data:; style-src ${incoming.origin}${PROXY_PATH} 'unsafe-inline'; font-src ${incoming.origin}${PROXY_PATH} data:; media-src ${incoming.origin}${PROXY_PATH}; form-action ${incoming.origin}${PROXY_PATH}; script-src 'none'; connect-src 'none'; frame-src 'none'; base-uri 'none'`);
 
   if (type.includes("text/html")) {
     return new Response(rewriteHtml(await res.text(), finalUrl), { status: res.status, headers });
