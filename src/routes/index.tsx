@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import logo from "@/assets/crawdy-logo.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,9 +26,9 @@ function Index() {
   return (
     <main className="crawdy-bg flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-xl text-center">
-        <div className="text-6xl">🦞</div>
+        <img src={logo.url} alt="Crawdy" className="mx-auto h-28 w-28 rounded-3xl shadow-glow" />
         <h1 className="mt-4 font-display text-5xl font-bold tracking-tight text-foreground">
-          Crawdy <span className="text-primary">Proxy</span>
+          Crawdy <span className="text-gradient-primary">Proxy</span>
         </h1>
         <p className="mt-3 text-muted-foreground">URLを入力して、ブロックされたサイトへアクセス。</p>
         <form onSubmit={go} className="mt-8 flex gap-2 rounded-2xl border border-border bg-card p-2 shadow-glow">
@@ -37,7 +38,7 @@ function Index() {
             placeholder="example.com"
             className="flex-1 bg-transparent px-3 py-3 text-foreground outline-none placeholder:text-muted-foreground"
           />
-          <button className="rounded-xl bg-primary px-6 font-semibold text-primary-foreground transition hover:opacity-90">
+          <button className="rounded-xl bg-gradient-primary px-6 font-semibold text-primary-foreground transition hover:opacity-90">
             GO
           </button>
         </form>
