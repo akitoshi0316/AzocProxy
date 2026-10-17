@@ -56,7 +56,7 @@ async function handle(request: Request) {
   return new Response(res.body, { status: res.status, headers });
 }
 
-export const Route = createFileRoute("/public/proxy")({
+export const Route = createFileRoute("/api/public/proxy")({
   server: {
     handlers: {
       GET: ({ request }) => handle(request),
