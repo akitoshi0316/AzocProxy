@@ -42,9 +42,7 @@ function Index() {
             GO
           </button>
         </form>
-        <p className="mt-6 text-xs text-muted-foreground">
-          ※ 閲覧専用です。ログイン・動画サービスなどには非対応で、すべての制限の解除は保証できません。
-        </p>
+        <p className="mt-6 text-xs text-muted-foreground">※ 閲覧専用です。すべての制限の解除は保証できません。</p>
       </div>
     </main>
   );
