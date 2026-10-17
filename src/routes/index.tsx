@@ -28,7 +28,7 @@ function Index() {
       <div className="w-full max-w-xl text-center">
         <img src={logo.url} alt="Crawdy" className="mx-auto h-28 w-28 rounded-3xl shadow-glow" />
         <h1 className="mt-4 font-display text-5xl font-bold tracking-tight text-foreground">
-          Crawdy <span className="text-gradient-primary">Proxy</span>
+          Azoc <span className="text-gradient-primary">Proxy</span>
         </h1>
         <p className="mt-3 text-muted-foreground">これまでにない自由のWEB閲覧</p>
         <form onSubmit={go} className="mt-8 flex gap-2 rounded-2xl border border-border bg-card p-2 shadow-glow">
