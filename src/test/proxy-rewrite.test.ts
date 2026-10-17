@@ -1,26 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decodeProxyTarget, encodeProxyTarget, publicTarget, proxyUrl, rewriteCss, rewriteHtml } from "@/lib/proxy-rewrite";
-
-describe("Binary proxy destinations", () => {
-  it("encodes UTF-8 bytes as eight binary digits each", () => {
-    expect(encodeProxyTarget("https://example.com")).toBe("01101000011101000111010001110000011100110011101000101111001011110110010101111000011000010110110101110000011011000110010100101110011000110110111101101101");
-  });
-  it("decodes destinations including Unicode and query strings", () => {
-    const url = "https://example.com/日本語?q=hello&x=1#見出し";
-    expect(decodeProxyTarget(encodeProxyTarget(url))).toBe(url);
-  });
-  it("uses the requested path without a literal destination or fragment", () => {
-    const result = proxyUrl("/next?q=1#heading", "https://example.com/");
-    expect(result).toMatch(/^\/public\/proxy\?url=[01]+$/);
-    expect(decodeProxyTarget(result.split("url=")[1])).toBe("https://example.com/next?q=1#heading");
-  });
-  it.each(["", "010", "https://example.com", "00000002", "11111111", "0".repeat(65544)])("rejects malformed or oversized binary input", (value) => {
-    expect(() => decodeProxyTarget(value)).toThrow();
-  });
-  it("still rejects local destinations after decoding", () => {
-    expect(() => publicTarget(decodeProxyTarget(encodeProxyTarget("http://127.0.0.1")))).toThrow();
-  });
-});
+import { publicTarget, proxyUrl, rewriteCss, rewriteHtml } from "@/lib/proxy-rewrite";
 
 describe("Server-mediated browsing", () => {
   it("routes unquoted image and link addresses through the server", () => {
@@ -44,8 +23,8 @@ describe("Server-mediated browsing", () => {
   });
   it("preserves GET search parameters via the proxy form", () => {
     const result = rewriteHtml('<form action="/search"><input name="q"></form>', "https://example.com/");
-    expect(result).toContain('action="/public/proxy"');
-    expect(result).toContain(`name="url" value="${encodeProxyTarget("https://example.com/search")}"`);
+    expect(result).toContain('action="/api/public/proxy"');
+    expect(result).toContain('name="url" value="https://example.com/search"');
   });
   it.each(["http://127.0.0.1", "http://169.254.169.254", "http://localhost", "http://[::1]", "https://user:password@example.com", "https://example.com:8080"])("rejects nonpublic destination %s", (url) => {
     expect(() => publicTarget(url)).toThrow();

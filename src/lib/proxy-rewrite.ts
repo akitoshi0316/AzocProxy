@@ -2,24 +2,7 @@ import { parse, serialize, html as htmlConstants, type DefaultTreeAdapterTypes }
 import postcss from "postcss";
 import valueParser from "postcss-value-parser";
 
-export const PROXY_PATH = "/public/proxy";
-
-const MAX_URL_BYTES = 8192;
-
-export function encodeProxyTarget(value: string): string {
-  const bytes = new TextEncoder().encode(value);
-  if (!bytes.length || bytes.length > MAX_URL_BYTES) throw new Error("Invalid URL length");
-  return Array.from(bytes, (byte) => byte.toString(2).padStart(8, "0")).join("");
-}
-
-export function decodeProxyTarget(value: string): string {
-  if (!value.length || value.length > MAX_URL_BYTES * 8 || value.length % 8 !== 0 || /[^01]/.test(value)) {
-    throw new Error("Invalid binary URL");
-  }
-  const bytes = new Uint8Array(value.length / 8);
-  for (let i = 0; i < bytes.length; i++) bytes[i] = Number.parseInt(value.slice(i * 8, i * 8 + 8), 2);
-  return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-}
+export const PROXY_PATH = "/api/public/proxy";
 
 export function publicTarget(value: string, base?: string): URL {
   const url = new URL(base ? value : (/^https?:\/\//i.test(value) ? value : `https://${value}`), base);
@@ -40,7 +23,9 @@ export function proxyUrl(value: string, base: string): string {
   if (trimmed.startsWith(`${PROXY_PATH}?`)) return trimmed;
   try {
     const url = publicTarget(trimmed, base);
-    return `${PROXY_PATH}?url=${encodeProxyTarget(url.toString())}`;
+    const hash = url.hash;
+    url.hash = "";
+    return `${PROXY_PATH}?url=${encodeURIComponent(url.toString())}${hash}`;
   } catch {
     return "about:blank";
   }
@@ -113,12 +98,8 @@ export function rewriteHtml(html: string, finalUrl: string): string {
       node.attrs = node.attrs.filter((attr) => !["action", "method", "target"].includes(attr.name));
       node.attrs.push({ name: "action", value: method === "get" ? PROXY_PATH : "about:blank" }, { name: "method", value: "get" });
       if (method === "get") {
-        try {
-          const input: DefaultTreeAdapterTypes.Element = { nodeName: "input", tagName: "input", namespaceURI: htmlConstants.NS.HTML, attrs: [{ name: "type", value: "hidden" }, { name: "name", value: "url" }, { name: "value", value: encodeProxyTarget(publicTarget(action, base).toString()) }], childNodes: [], parentNode: node };
-          node.childNodes.unshift(input);
-        } catch {
-          node.attrs.push({ name: "inert", value: "" });
-        }
+        const input: DefaultTreeAdapterTypes.Element = { nodeName: "input", tagName: "input", namespaceURI: htmlConstants.NS.HTML, attrs: [{ name: "type", value: "hidden" }, { name: "name", value: "url" }, { name: "value", value: new URL(action, base).toString() }], childNodes: [], parentNode: node };
+        node.childNodes.unshift(input);
       } else {
         node.attrs.push({ name: "inert", value: "" });
       }

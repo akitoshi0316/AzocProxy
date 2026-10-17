@@ -10,5 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep proxy URL validation and HTML/CSS rewriting in the browser-safe proxy-rewrite module so routing and tests share one implementation.
-- Keep destination encoding/decoding in that shared module and derive navigation, rewritten resource URLs and server CSP paths from its proxy path constant so all entry points use the same address format.
 - Serve proxied pages as sandboxed, script-free, read-only documents; third-party code must never gain access to the application's origin or user sessions.
