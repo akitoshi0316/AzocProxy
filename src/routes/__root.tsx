@@ -45,9 +45,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
@@ -78,11 +76,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Crawdy Proxy" },
-      { name: "description", content: "Crawdy Proxy — サーバー経由のWeb閲覧。" },
+      { title: "Azoc Proxy" },
+      { name: "description", content: "Azoc Proxy — サーバー経由のWeb閲覧。" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Crawdy Proxy" },
-      { property: "og:description", content: "Crawdy Proxy — サーバー経由のWeb閲覧。" },
+      { property: "og:title", content: "Azoc Proxy" },
+      { property: "og:description", content: "Azoc Proxy — サーバー経由のWeb閲覧。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
