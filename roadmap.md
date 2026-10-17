@@ -1,0 +1,3 @@
+- [x] Route page links, images, styles and GET searches through the server.
+- [x] Prevent direct script requests and protect the app origin.
+- [x] Verify server-mediated browsing and existing routing tests.
