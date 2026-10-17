@@ -1,4 +1,4 @@
-import { parse, serialize, type DefaultTreeAdapterTypes } from "parse5";
+import { parse, serialize, html as htmlConstants, type DefaultTreeAdapterTypes } from "parse5";
 import postcss from "postcss";
 import valueParser from "postcss-value-parser";
 
@@ -48,6 +48,7 @@ export function rewriteCss(css: string, base: string): string {
           node.value = proxyUrl(node.value, base);
           importDone = true;
         }
+        return undefined;
       });
       return parsed.toString();
     };
@@ -97,7 +98,7 @@ export function rewriteHtml(html: string, finalUrl: string): string {
       node.attrs = node.attrs.filter((attr) => !["action", "method", "target"].includes(attr.name));
       node.attrs.push({ name: "action", value: method === "get" ? PROXY_PATH : "about:blank" }, { name: "method", value: "get" });
       if (method === "get") {
-        const input: DefaultTreeAdapterTypes.Element = { nodeName: "input", tagName: "input", namespaceURI: "http://www.w3.org/1999/xhtml", attrs: [{ name: "type", value: "hidden" }, { name: "name", value: "url" }, { name: "value", value: new URL(action, base).toString() }], childNodes: [], parentNode: node };
+        const input: DefaultTreeAdapterTypes.Element = { nodeName: "input", tagName: "input", namespaceURI: htmlConstants.NS.HTML, attrs: [{ name: "type", value: "hidden" }, { name: "name", value: "url" }, { name: "value", value: new URL(action, base).toString() }], childNodes: [], parentNode: node };
         node.childNodes.unshift(input);
       } else {
         node.attrs.push({ name: "inert", value: "" });
