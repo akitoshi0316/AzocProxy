@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep proxy URL validation and HTML/CSS rewriting in the browser-safe proxy-rewrite module so routing and tests share one implementation.
+- Serve proxied pages as sandboxed, script-free, read-only documents; third-party code must never gain access to the application's origin or user sessions.
