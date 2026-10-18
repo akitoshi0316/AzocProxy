@@ -26,6 +26,19 @@ describe("Server-mediated browsing", () => {
     expect(result).toContain('action="/public/proxy"');
     expect(result).toContain('name="url" value="https://example.com/search"');
   });
+  it("encodes destinations as binary digits and decodes them back", () => {
+    const target = "https://example.com/検索?q=テスト";
+    const encoded = encodeTarget(target);
+    expect(encoded).toMatch(/^[01]+$/);
+    expect(encoded).not.toContain("example.com");
+    expect(decodeTarget(encoded)).toBe(target);
+    expect(() => decodeTarget("0123")).toThrow();
+  });
+  it("hides the literal destination inside generated proxy links", () => {
+    const link = proxyUrl("https://example.org/next page", "https://example.com/");
+    expect(link.startsWith("/public/proxy?url=")).toBe(true);
+    expect(link).not.toContain("example.org");
+  });
   it.each(["http://127.0.0.1", "http://169.254.169.254", "http://localhost", "http://[::1]", "https://user:password@example.com", "https://example.com:8080"])("rejects nonpublic destination %s", (url) => {
     expect(() => publicTarget(url)).toThrow();
   });

@@ -44,7 +44,7 @@ export function proxyUrl(value: string, base: string): string {
     const url = publicTarget(trimmed, base);
     const hash = url.hash;
     url.hash = "";
-    return `${PROXY_PATH}?url=${encodeURIComponent(url.toString())}${hash}`;
+    return `${PROXY_PATH}?url=${encodeTarget(url.toString())}${hash}`;
   } catch {
     return "about:blank";
   }
