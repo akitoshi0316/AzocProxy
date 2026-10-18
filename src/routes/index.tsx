@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { encodeTarget } from "@/lib/proxy-rewrite";
 import logo from "@/assets/crawdy-logo.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -21,7 +22,7 @@ function Index() {
   const go = (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
-    window.location.href = `/api/public/proxy?url=${encodeURIComponent(url.trim())}`;
+    window.location.href = `/public/proxy?url=${encodeTarget(url.trim())}`;
   };
   return (
     <main className="crawdy-bg flex min-h-screen flex-col items-center justify-center px-4">

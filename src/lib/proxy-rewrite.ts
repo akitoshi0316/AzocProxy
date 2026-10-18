@@ -2,7 +2,26 @@ import { parse, serialize, html as htmlConstants, type DefaultTreeAdapterTypes }
 import postcss from "postcss";
 import valueParser from "postcss-value-parser";
 
-export const PROXY_PATH = "/api/public/proxy";
+export const PROXY_PATH = "/public/proxy";
+
+// The destination is carried as UTF-8 binary digits so the literal URL never
+// appears in proxy links. This is reversible encoding, not secret-key encryption.
+export function encodeTarget(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  let out = "";
+  for (const byte of bytes) out += byte.toString(2).padStart(8, "0");
+  return out;
+}
+
+export function decodeTarget(encoded: string): string {
+  const cleaned = encoded.replace(/\s+/g, "");
+  if (!cleaned || cleaned.length % 8 !== 0 || /[^01]/.test(cleaned)) {
+    throw new Error("Invalid encoded url");
+  }
+  const bytes = new Uint8Array(cleaned.length / 8);
+  for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(cleaned.slice(i * 8, i * 8 + 8), 2);
+  return new TextDecoder().decode(bytes);
+}
 
 export function publicTarget(value: string, base?: string): URL {
   const url = new URL(base ? value : (/^https?:\/\//i.test(value) ? value : `https://${value}`), base);
@@ -25,7 +44,7 @@ export function proxyUrl(value: string, base: string): string {
     const url = publicTarget(trimmed, base);
     const hash = url.hash;
     url.hash = "";
-    return `${PROXY_PATH}?url=${encodeURIComponent(url.toString())}${hash}`;
+    return `${PROXY_PATH}?url=${encodeTarget(url.toString())}${hash}`;
   } catch {
     return "about:blank";
   }

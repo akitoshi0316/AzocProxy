@@ -1,7 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { publicTarget, rewriteHtml, rewriteCss } from "@/lib/proxy-rewrite";
+import { PROXY_PATH, publicTarget, rewriteHtml, rewriteCss } from "@/lib/proxy-rewrite";
 
-async function handle(request: Request) {
+export async function handleProxy(request: Request) {
   const incoming = new URL(request.url);
   const target = incoming.searchParams.get("url");
   if (!target) return new Response("Missing url", { status: 400 });
@@ -50,7 +49,7 @@ async function handle(request: Request) {
   headers.set("x-content-type-options", "nosniff");
   headers.set(
     "content-security-policy",
-    `sandbox allow-forms allow-popups; default-src 'none'; img-src ${incoming.origin}/api/public/proxy data:; style-src ${incoming.origin}/api/public/proxy 'unsafe-inline'; font-src ${incoming.origin}/api/public/proxy data:; media-src ${incoming.origin}/api/public/proxy; form-action ${incoming.origin}/api/public/proxy; script-src 'none'; connect-src 'none'; frame-src 'none'; base-uri 'none'`,
+    `sandbox allow-forms allow-popups; default-src 'none'; img-src ${incoming.origin}${PROXY_PATH} data:; style-src ${incoming.origin}${PROXY_PATH} 'unsafe-inline'; font-src ${incoming.origin}${PROXY_PATH} data:; media-src ${incoming.origin}${PROXY_PATH}; form-action ${incoming.origin}${PROXY_PATH}; script-src 'none'; connect-src 'none'; frame-src 'none'; base-uri 'none'`,
   );
 
   if (type.includes("text/html")) {
@@ -62,15 +61,9 @@ async function handle(request: Request) {
   return new Response(res.body, { status: res.status, headers });
 }
 
-export const Route = createFileRoute("/api/public/proxy")({
-  server: {
-    handlers: {
-      GET: ({ request }) => handle(request),
-      POST: () =>
-        new Response("このプロキシは閲覧専用です。ログインや送信には対応していません。", {
-          status: 405,
-          headers: { allow: "GET" },
-        }),
-    },
-  },
-});
+export function methodNotAllowed() {
+  return new Response("このプロキシは閲覧専用です。ログインや送信には対応していません。", {
+    status: 405,
+    headers: { allow: "GET" },
+  });
+}
