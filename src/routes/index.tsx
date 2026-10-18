@@ -31,7 +31,7 @@ function Index() {
         <h1 className="mt-4 font-display text-5xl font-bold tracking-tight text-foreground">
           Azoc<span className="text-gradient-primary">Proxy</span>
         </h1>
-        <p className="mt-3 text-muted-foreground">これまでにない自由のWEB閲覧</p>
+        <p className="mt-3 text-muted-foreground">これまでにない自由のWEB閲覧を</p>
         <form onSubmit={go} className="mt-8 flex gap-2 rounded-2xl border border-border bg-card p-2 shadow-glow">
           <input
             value={url}
