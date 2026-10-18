@@ -20,7 +20,7 @@ export async function handleProxy(request: Request) {
     const options: RequestInit = {
       method: "GET",
       headers: {
-        "user-agent": request.headers.get("user-agent") ?? "Mozilla/5.0 Azoc Proxy",
+        "user-agent": request.headers.get("user-agent") ?? "Mozilla/5.0 AzocProxy",
         accept: request.headers.get("accept") ?? "*/*",
         "accept-language": request.headers.get("accept-language") ?? "en",
       },
