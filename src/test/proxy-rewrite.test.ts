@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { publicTarget, proxyUrl, rewriteCss, rewriteHtml } from "@/lib/proxy-rewrite";
+import { decodeTarget, encodeTarget, publicTarget, proxyUrl, rewriteCss, rewriteHtml } from "@/lib/proxy-rewrite";
 
 describe("Server-mediated browsing", () => {
   it("routes unquoted image and link addresses through the server", () => {
@@ -23,7 +23,7 @@ describe("Server-mediated browsing", () => {
   });
   it("preserves GET search parameters via the proxy form", () => {
     const result = rewriteHtml('<form action="/search"><input name="q"></form>', "https://example.com/");
-    expect(result).toContain('action="/api/public/proxy"');
+    expect(result).toContain('action="/public/proxy"');
     expect(result).toContain('name="url" value="https://example.com/search"');
   });
   it.each(["http://127.0.0.1", "http://169.254.169.254", "http://localhost", "http://[::1]", "https://user:password@example.com", "https://example.com:8080"])("rejects nonpublic destination %s", (url) => {
