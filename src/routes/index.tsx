@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { encodeTarget } from "@/lib/proxy-rewrite";
-import logo from "@/assets/crawdy-logo.jpg.asset.json";
+import logo from "@/assets/azoc-icon.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Azoc Proxy — 自由にWebを見る" },
-      { name: "description", content: "Azoc Proxy: ブラウザだけで使えるシンプルなWebプロキシ。" },
-      { property: "og:title", content: "Azoc Proxy" },
+      { title: "AzocProxy — 自由にWebを見る" },
+      { name: "description", content: "AzocProxy: ブラウザだけで使えるシンプルなWebプロキシ。" },
+      { property: "og:title", content: "AzocProxy" },
       { property: "og:description", content: "ブラウザだけで使えるシンプルなWebプロキシ。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -25,11 +25,11 @@ function Index() {
     window.location.href = `/public/proxy?url=${encodeTarget(url.trim())}`;
   };
   return (
-    <main className="crawdy-bg flex min-h-screen flex-col items-center justify-center px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-xl text-center">
-        <img src={logo.url} alt="Crawdy" className="mx-auto h-28 w-28 rounded-3xl shadow-glow" />
+        <img src={logo.url} alt="AzocProxy" className="mx-auto h-28 w-28 rounded-3xl shadow-glow" />
         <h1 className="mt-4 font-display text-5xl font-bold tracking-tight text-foreground">
-          Azoc <span className="text-gradient-primary">Proxy</span>
+          Azoc<span className="text-gradient-primary">Proxy</span>
         </h1>
         <p className="mt-3 text-muted-foreground">これまでにない自由のWEB閲覧</p>
         <form onSubmit={go} className="mt-8 flex gap-2 rounded-2xl border border-border bg-card p-2 shadow-glow">

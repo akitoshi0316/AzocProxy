@@ -1,10 +1,10 @@
-# Cra Proxy
+# AzocProxy
 
-web検閲をできるweb proxyの、Crawdy proxyを作ってほしい
+サーバー経由でWebを閲覧するプロキシ。
 
 This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://cra-proxy.lovable.app
+**Live app**: https://azoc.lovable.app
 
 ## Build with Lovable
 
