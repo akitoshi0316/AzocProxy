@@ -15,11 +15,17 @@ describe("Server-mediated browsing", () => {
   it("uses the upstream base rather than the proxy origin", () => {
     expect(rewriteHtml('<base href="https://example.org/assets/"><img src="x.jpg">', "https://example.com/")).toContain(proxyUrl("x.jpg", "https://example.org/assets/"));
   });
-  it("prevents third-party executable code and nested documents", () => {
-    const result = rewriteHtml('<script>fetch("https://example.org")</script><img onerror="alert(1)" src="x.jpg"><iframe src="https://example.org"></iframe>', "https://example.com/");
-    expect(result).not.toContain("<script");
+  it("sandboxes third-party scripts and injects the request interceptor", () => {
+    const result = rewriteHtml('<script>fetch("/api")</script><img onerror="alert(1)" src="x.jpg"><iframe src="https://example.org"></iframe>', "https://example.com/");
+    // Scripts are kept (sandboxed by CSP), but the interceptor loads first.
+    expect(result).toContain('src="/proxy-interceptor.js"');
+    expect(result).toContain('name="azoc-base" content="https://example.com/"');
+    expect(result.indexOf("/proxy-interceptor.js")).toBeLessThan(result.indexOf('fetch("/api")'));
     expect(result).not.toContain("onerror");
     expect(result).not.toContain("<iframe");
+  });
+  it("never routes the interceptor script itself upstream", () => {
+    expect(proxyUrl("/proxy-interceptor.js", "https://example.com/")).toBe("/proxy-interceptor.js");
   });
   it("preserves GET search parameters via the proxy form", () => {
     const result = rewriteHtml('<form action="/search"><input name="q"></form>', "https://example.com/");
