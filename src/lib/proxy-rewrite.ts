@@ -38,8 +38,10 @@ export function publicTarget(value: string, base?: string): URL {
 
 export function proxyUrl(value: string, base: string): string {
   const trimmed = value.trim();
-  if (/^(?:#|data:|mailto:|tel:)/i.test(trimmed)) return value;
+  if (/^(?:#|data:|blob:|mailto:|tel:)/i.test(trimmed)) return value;
   if (trimmed.startsWith(`${PROXY_PATH}?`)) return trimmed;
+  // The interceptor is our own same-origin script; never route it upstream.
+  if (trimmed === "/proxy-interceptor.js") return trimmed;
   try {
     const url = publicTarget(trimmed, base);
     const hash = url.hash;
