@@ -10,4 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Keep proxy URL validation and HTML/CSS rewriting in the browser-safe proxy-rewrite module so routing and tests share one implementation.
-- Serve proxied pages as sandboxed, script-free, read-only documents; third-party code must never gain access to the application's origin or user sessions.
+- Serve proxied pages sandboxed: third-party scripts may run only under the CSP sandbox (no same-origin access) with public/proxy-interceptor.js forcing dynamic requests back through the proxy; third-party code must never gain access to the application's origin or user sessions.
+- Guard the proxy with src/lib/proxy-guard.ts: on anomalous request/failure rates it severs the connection and serves a 503 maintenance page for the lockout period. Never disable this to "fix" errors.
