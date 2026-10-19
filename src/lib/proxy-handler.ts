@@ -1,6 +1,10 @@
 import { PROXY_PATH, publicTarget, rewriteHtml, rewriteCss } from "@/lib/proxy-rewrite";
+import { clientKey, checkGuard, guardResponse, recordOutcome } from "@/lib/proxy-guard";
 
 export async function handleProxy(request: Request) {
+  const key = clientKey(request);
+  const verdict = checkGuard(key);
+  if (!verdict.allowed) return guardResponse(verdict.retryAfter ?? 300);
   const incoming = new URL(request.url);
   const target = incoming.searchParams.get("url");
   if (!target) return new Response("Missing url", { status: 400 });
