@@ -38,8 +38,10 @@ export function publicTarget(value: string, base?: string): URL {
 
 export function proxyUrl(value: string, base: string): string {
   const trimmed = value.trim();
-  if (/^(?:#|data:|mailto:|tel:)/i.test(trimmed)) return value;
+  if (/^(?:#|data:|blob:|mailto:|tel:)/i.test(trimmed)) return value;
   if (trimmed.startsWith(`${PROXY_PATH}?`)) return trimmed;
+  // The interceptor is our own same-origin script; never route it upstream.
+  if (trimmed === "/proxy-interceptor.js") return trimmed;
   try {
     const url = publicTarget(trimmed, base);
     const hash = url.hash;
@@ -91,11 +93,45 @@ export function rewriteHtml(html: string, finalUrl: string): string {
     if ("childNodes" in node) node.childNodes.forEach(findBase);
   };
   findBase(document);
+  // Inject the request interceptor ahead of any page script so dynamic
+  // requests are captured from the start. The base is passed via a meta tag
+  // (no inline script, so script-src can stay origin-only).
+  const findTag = (node: DefaultTreeAdapterTypes.Node, tag: string): DefaultTreeAdapterTypes.Element | undefined => {
+    if ("tagName" in node && node.tagName === tag) return node as DefaultTreeAdapterTypes.Element;
+    if ("childNodes" in node) {
+      for (const child of node.childNodes) {
+        const found = findTag(child, tag);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  };
+  const makeEl = (tag: string, attrs: { name: string; value: string }[]): DefaultTreeAdapterTypes.Element => ({
+    nodeName: tag,
+    tagName: tag,
+    namespaceURI: htmlConstants.NS.HTML,
+    attrs,
+    childNodes: [],
+    parentNode: undefined as unknown as DefaultTreeAdapterTypes.ParentNode,
+  });
+  const meta = makeEl("meta", [
+    { name: "name", value: "azoc-base" },
+    { name: "content", value: base },
+  ]);
+  const loader = makeEl("script", [{ name: "src", value: "/proxy-interceptor.js" }]);
+  const head = findTag(document, "head") ?? findTag(document, "html");
+  if (head) {
+    meta.parentNode = head;
+    loader.parentNode = head;
+    head.childNodes.unshift(meta, loader);
+  }
   const walk = (node: DefaultTreeAdapterTypes.Node) => {
     if ("childNodes" in node) {
       node.childNodes = node.childNodes.filter((child) => {
         if (!("tagName" in child)) return true;
-        if (["script", "base", "iframe", "object", "embed"].includes(child.tagName)) return false;
+        // Scripts are kept but sandboxed by CSP + the interceptor; nested
+        // documents and base hijacking remain stripped.
+        if (["base", "iframe", "object", "embed"].includes(child.tagName)) return false;
         if (child.tagName === "meta" && child.attrs.some((attr) => attr.name === "http-equiv")) return false;
         if (child.tagName === "link" && child.attrs.some((attr) => attr.name === "rel" && /preconnect|dns-prefetch|modulepreload|manifest/i.test(attr.value))) return false;
         return true;

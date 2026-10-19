@@ -1,6 +1,10 @@
 import { PROXY_PATH, publicTarget, rewriteHtml, rewriteCss } from "@/lib/proxy-rewrite";
+import { clientKey, checkGuard, guardResponse, recordOutcome } from "@/lib/proxy-guard";
 
 export async function handleProxy(request: Request) {
+  const key = clientKey(request);
+  const verdict = checkGuard(key);
+  if (!verdict.allowed) return guardResponse(verdict.retryAfter ?? 300);
   const incoming = new URL(request.url);
   const target = incoming.searchParams.get("url");
   if (!target) return new Response("Missing url", { status: 400 });
@@ -37,8 +41,10 @@ export async function handleProxy(request: Request) {
       res = await fetch(url.toString(), options);
     }
   } catch (e) {
+    recordOutcome(key, 502);
     return new Response(`Fetch failed: ${(e as Error).message}`, { status: 502 });
   }
+  recordOutcome(key, res.status);
 
   const finalUrl = res.url || url.toString();
   const type = res.headers.get("content-type") ?? "";
@@ -47,9 +53,16 @@ export async function handleProxy(request: Request) {
   headers.set("cache-control", "no-store");
   headers.set("referrer-policy", "no-referrer");
   headers.set("x-content-type-options", "nosniff");
+  // The interceptor fetches from an opaque (sandboxed) origin, so allow
+  // cross-origin reads of proxied content. No credentials are ever sent.
+  headers.set("access-control-allow-origin", "*");
+  // Scripts run, but only inside a sandbox without same-origin access: the
+  // page can never touch this app's storage or session. Every network
+  // direction is pinned to this origin, so the interceptor (or the CSP
+  // backstop) forces all traffic through the proxy.
   headers.set(
     "content-security-policy",
-    `sandbox allow-forms allow-popups; default-src 'none'; img-src ${incoming.origin}${PROXY_PATH} data:; style-src ${incoming.origin}${PROXY_PATH} 'unsafe-inline'; font-src ${incoming.origin}${PROXY_PATH} data:; media-src ${incoming.origin}${PROXY_PATH}; form-action ${incoming.origin}${PROXY_PATH}; script-src 'none'; connect-src 'none'; frame-src 'none'; base-uri 'none'`,
+    `sandbox allow-forms allow-popups allow-scripts; default-src 'none'; script-src ${incoming.origin} 'unsafe-inline'; connect-src ${incoming.origin}; img-src ${incoming.origin} data:; style-src ${incoming.origin} 'unsafe-inline'; font-src ${incoming.origin} data:; media-src ${incoming.origin}; form-action ${incoming.origin}${PROXY_PATH}; frame-src 'none'; worker-src 'none'; base-uri 'none'`,
   );
 
   if (type.includes("text/html")) {
