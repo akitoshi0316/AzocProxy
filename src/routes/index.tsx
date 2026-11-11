@@ -44,6 +44,7 @@ function Index() {
           </button>
         </form>
         <p className="mt-6 text-xs text-muted-foreground">※ 閲覧専用です。すべての制限の解除は保証できません。</p>
+        <footer className="mt-10 text-xs text-muted-foreground">© Crawdy</footer>
       </div>
     </main>
   );
