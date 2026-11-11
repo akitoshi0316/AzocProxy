@@ -20,14 +20,14 @@ const LOCKOUT_MS = 5 * 60_000;
 
 function prune(arr: number[], now: number) {
   const cutoff = now - WINDOW_MS;
-  while (arr.length && arr[0] < cutoff) arr.shift();
+  while (arr.length && (arr[0] ?? 0) < cutoff) arr.shift();
 }
 
 export function clientKey(request: Request): string {
   const cf = request.headers.get("cf-connecting-ip");
   if (cf) return cf;
   const forwarded = request.headers.get("x-forwarded-for");
-  return forwarded ? forwarded.split(",")[0].trim() : "unknown";
+  return forwarded ? (forwarded.split(",")[0] ?? "").trim() : "unknown";
 }
 
 export function checkGuard(
