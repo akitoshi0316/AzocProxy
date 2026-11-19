@@ -27,4 +27,4 @@ npm run dev
 
 ---
 
-© Crawdy
+© lifly
