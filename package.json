@@ -1,7 +1,7 @@
 {
   "name": "tanstack_start_ts",
   "private": true,
-  "author": "Crawdy",
+  "author": "lifly",
   "sideEffects": false,
   "type": "module",
   "scripts": {
